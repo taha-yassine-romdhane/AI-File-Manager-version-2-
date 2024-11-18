@@ -6,18 +6,18 @@ import { formatDistanceToNow } from "date-fns"
 import { formatBytes } from "@/lib/utils"
 import { DocumentCategory } from "@/lib/classification"
 
-interface File {
+interface FileItem {
   id: string
   name: string
   size: number
-  createdAt: string
-  categories?: DocumentCategory[]
+  url: string
+  createdAt: Date
 }
 
 interface FileListProps {
-  files: File[]
+  files: FileItem[]
   onDelete: (fileId: string) => void
-  onView: (file: File) => void
+  onView: (file: FileItem) => void
   isLoading?: boolean
 }
 
@@ -84,22 +84,9 @@ export function FileList({ files, onDelete, onView, isLoading = false }: FileLis
               </div>
               <div>
                 <h4 className="text-sm font-medium">{file.name}</h4>
-                {file.categories && file.categories.length > 0 && (
-                  <div className="flex items-center gap-2 mt-1 mb-2">
-                    {file.categories.map((category) => (
-                      <Badge
-                        key={category}
-                        variant={categoryVariants[category as DocumentCategory]}
-                        className="text-xs"
-                      >
-                        {category}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
                 <p className="text-sm text-gray-500">
                   {formatBytes(file.size)} •{" "}
-                  {formatDistanceToNow(new Date(file.createdAt), {
+                  {formatDistanceToNow(file.createdAt, {
                     addSuffix: true,
                   })}
                 </p>

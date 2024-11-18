@@ -10,6 +10,9 @@ interface PDFViewerProps {
 }
 
 export function PDFViewer({ isOpen, onClose, fileUrl, fileName }: PDFViewerProps) {
+  // Ensure the URL starts with a forward slash
+  const fullUrl = fileUrl.startsWith('/') ? fileUrl : `/${fileUrl}`
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-7xl w-[95vw] h-[90vh] p-0">
@@ -22,7 +25,7 @@ export function PDFViewer({ isOpen, onClose, fileUrl, fileName }: PDFViewerProps
         </div>
         <div className="flex-1 h-[calc(90vh-4rem)] bg-gray-100">
           <iframe
-            src={`${fileUrl}#toolbar=1&view=FitH`}
+            src={`${fullUrl}#toolbar=1&view=FitH`}
             className="w-full h-full"
             title={`PDF viewer for ${fileName}`}
             style={{

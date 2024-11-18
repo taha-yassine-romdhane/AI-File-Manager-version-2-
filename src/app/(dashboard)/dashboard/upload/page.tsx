@@ -1,5 +1,7 @@
 'use client'
 
+'use client'
+
 import { useState, useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { Cloud, File, Loader2 } from 'lucide-react'
@@ -32,61 +34,37 @@ export default function UploadPage() {
     setUploadProgress(0)
 
     try {
-      // Create form data
       const formData = new FormData()
       formData.append('file', file)
 
-      // Simulate upload progress
-      const progressInterval = setInterval(() => {
-        setUploadProgress((prev) => {
-          if (prev >= 95) {
-            clearInterval(progressInterval)
-            return prev
-          }
-          return prev + 5
-        })
-      }, 100)
-
-      // Upload file
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       })
 
-      clearInterval(progressInterval)
+      const data = await response.json()
 
-      if (!response.ok) {
-        const errorData = await response.text()
-        let errorMessage = 'Failed to upload file'
-        try {
-          const parsedError = JSON.parse(errorData)
-          errorMessage = parsedError.error || errorMessage
-        } catch (e) {
-          console.error('Error parsing error response:', errorData)
-        }
-        throw new Error(errorMessage)
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Failed to upload file')
       }
 
-      const data = await response.json()
-      
       setUploadProgress(100)
       toast({
         title: 'Success',
         description: 'File uploaded successfully',
       })
 
-      // Reset and redirect after 1 second
       setTimeout(() => {
         setIsUploading(false)
         setUploadProgress(0)
         router.push('/dashboard/files')
       }, 1000)
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error uploading file:', error)
       toast({
         variant: 'destructive',
-        title: 'Error',
-        description: error?.message || 'Failed to upload file',
+        title: 'Upload Failed',
+        description: error instanceof Error ? error.message : 'Failed to upload file',
       })
       setIsUploading(false)
       setUploadProgress(0)
